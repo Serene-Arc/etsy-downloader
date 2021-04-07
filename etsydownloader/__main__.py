@@ -13,18 +13,22 @@ logger = logging.getLogger()
 parser = argparse.ArgumentParser()
 
 
-def _setup_logging():
+def _setup_logging(verbosity: int):
     logger.setLevel(1)
     stream = logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter('[%(asctime)s - %(name)s - %(levelname)s] - %(message)s')
     stream.setFormatter(formatter)
     logger.addHandler(stream)
-    stream.setLevel(logging.DEBUG)
+    if verbosity >= 1:
+        stream.setLevel(logging.DEBUG)
+    else:
+        stream.setLevel(logging.INFO)
 
 
 def _setup_arguments():
     parser.add_argument('destination', type=str)
     parser.add_argument('url', type=str)
+    parser.add_argument('-v', '--verbose', action='count', default=0)
 
 
 def find_videos(soup: bs4.BeautifulSoup) -> list[str]:
@@ -42,6 +46,8 @@ def find_images(soup: bs4.BeautifulSoup) -> list[str]:
 
 
 def main(args: argparse.Namespace):
+    _setup_logging(args.verbose)
+
     args.destination = Path(args.destination).resolve().expanduser()
     args.destination.mkdir(exist_ok=True)
 
@@ -49,10 +55,12 @@ def main(args: argparse.Namespace):
     soup = bs4.BeautifulSoup(page.text, 'html.parser')
 
     images = find_images(soup)
-    videos = find_videos(soup)
-    resources = images + videos
-    resources = list(filter(None, resources))
+    logger.info(f'Found {len(images)} images')
 
+    videos = find_videos(soup)
+    logger.info(f'Found {len(videos)} videos')
+
+    resources = list(filter(None, images + videos))
     download_resources(args.destination, resources)
 
 
@@ -64,6 +72,7 @@ def download_resources(root_destination: Path, resources: list[str]):
         destination = Path(root_destination, name)
         with open(destination, 'wb') as file:
             file.write(data.content)
+        logger.debug(f'Written {destination.name} to disk')
 
 
 if __name__ == '__main__':
