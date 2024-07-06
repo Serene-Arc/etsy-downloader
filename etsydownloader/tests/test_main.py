@@ -25,6 +25,7 @@ def test_find_images(test_url: str, expected_len: int):
 @pytest.mark.parametrize(('test_url', 'expected_len'), (
     ('https://www.etsy.com/au/listing/824302891/chill-pill-mix-match-stainless-steel', 1),
     ('https://www.etsy.com/au/listing/948839970/flip-desk-toy-rotating-pocket-toy-fidget', 1),
+    ('https://www.etsy.com/au/listing/1277422948/max-security-heavy-duty-straitjacket', 1),
 ))
 def test_find_videos(test_url: str, expected_len: int):
     page = requests.get(test_url)

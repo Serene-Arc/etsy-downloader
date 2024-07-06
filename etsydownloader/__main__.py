@@ -32,7 +32,7 @@ def _setup_arguments():
 
 
 def find_videos(soup: bs4.BeautifulSoup) -> list[str]:
-    video = soup.find_all('source', attrs={'src': re.compile(r'.*v-c\.etsystatic.*')})
+    video = soup.find_all('source', attrs={'src': re.compile(r'.*\.etsystatic.com/video.*')})
     video = [vid.get('src') for vid in video]
     return video
 
